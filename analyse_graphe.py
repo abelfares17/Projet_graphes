@@ -4,7 +4,7 @@ INPT N7 - 2SN-LMB
 """
 
 import matplotlib
-matplotlib.use('macosx')  # Backend interactif pour macOS
+matplotlib.use('macosx')
 
 import pandas as pd
 import numpy as np
