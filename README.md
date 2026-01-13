@@ -40,7 +40,8 @@ python3 analyse_graphe.py --help
 | `-v`, `--visu` | `2d`, `3d`, `both`, `none` | Type de visualisation (défaut: `none`) |
 | `-i2d`, `--interactif2d` | - | Mode interactif 2D avec boutons |
 | `-i3d`, `--interactif3d` | - | Mode interactif 3D avec boutons + rotation |
-| `-a`, `--analyse` | - | Analyse complète des 9 configurations |
+| `-a`, `--analyse` | - | PARTIE 2: Graphes non valués (9 configurations) |
+| `-p3`, `--partie3` | - | PARTIE 3: Graphes valués (coût = distance²) |
 
 ### Portées de communication
 - `courte` = 30 km
@@ -90,6 +91,33 @@ python3 analyse_graphe.py -i3d
 ```
 
 Le graphe se met à jour automatiquement quand tu cliques sur une option.
+
+### PARTIE 2 : Graphes non valués (9 configurations)
+
+Analyse topologique pour les 9 combinaisons (3 densités × 3 portées) :
+```bash
+python3 analyse_graphe.py -a
+```
+
+**Statistiques calculées :**
+- Degrés : moyenne, min/max, distribution
+- Clustering : moyen, min/max
+- Cliques : nombre total, distribution par ordre, clique maximale
+- Composantes connexes : nombre, distribution par ordre
+- Plus courts chemins : longueur moyenne, diamètre, distribution
+
+### PARTIE 3 : Graphes valués (coût = distance²)
+
+Analyse des graphes pondérés pour portée 60km avec coût = distance² :
+```bash
+python3 analyse_graphe.py -p3
+```
+
+**Statistiques calculées :**
+- Poids des arêtes : total, moyen, min/max
+- Plus courts chemins pondérés (Dijkstra) : coût moyen, diamètre pondéré
+- Arbre couvrant minimum (Kruskal) : poids total, nombre d'arêtes
+- Centralité de proximité pondérée
 
 ### Navigation dans les graphes
 - **2D** : Utilisez la toolbar en bas (zoom, pan)
