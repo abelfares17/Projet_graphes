@@ -573,27 +573,6 @@ if __name__ == "__main__":
     )
     
     parser.add_argument(
-        '-d', '--densite',
-        choices=['low', 'avg', 'high'],
-        default='avg',
-        help="Densité de l'essaim:\n  low  = faible\n  avg  = moyenne (défaut)\n  high = forte"
-    )
-    
-    parser.add_argument(
-        '-p', '--portee',
-        choices=['courte', 'moyenne', 'longue'],
-        default='moyenne',
-        help="Portée de communication:\n  courte  = 30 km\n  moyenne = 60 km (défaut)\n  longue  = 100 km"
-    )
-    
-    parser.add_argument(
-        '-v', '--visu',
-        choices=['2d', '3d', 'both', 'none'],
-        default='none',
-        help="Type de visualisation:\n  2d   = graphe 2D\n  3d   = graphe 3D\n  both = les deux\n  none = stats seulement (défaut)"
-    )
-    
-    parser.add_argument(
         '-i2d', '--interactif2d',
         action='store_true',
         help="Mode interactif 2D: modifier densité/portée avec des boutons"
@@ -619,7 +598,7 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     
-    # Modes spéciaux
+    # Lancement selon l'option choisie
     if args.analyse:
         analyser_neuf_configurations()
     elif args.partie3:
@@ -631,25 +610,10 @@ if __name__ == "__main__":
         print("→ Lancement du mode interactif 3D...")
         visualiser_interactif_3d()
     else:
-        print("=" * 60)
-        print("   PROJET GRAPHES - Essaim de Nanosatellites Lunaires")
-        print("=" * 60)
-        
-        # Charger les données
-        satellites = charger_donnees(DATA_FILES[args.densite])
-        
-        # Construire le graphe
-        portee = PORTEES[args.portee]
-        print(f"\n→ Construction du graphe (portée = {portee/1000:.0f} km)...")
-        G = construire_graphe(satellites, portee)
-        
-        # Afficher les statistiques
-        nom_config = f"Densité {args.densite} - Portée {args.portee} ({portee/1000:.0f} km)"
-        afficher_statistiques(G, nom_config)
-        
-        # Visualiser selon le choix
-        if args.visu in ['2d', 'both']:
-            print("\n→ Affichage du graphe 2D...")
-            visualiser_graphe_2d(G, f"Graphe des satellites\n{nom_config}")
-        
-        
+        print("Utilisation: python3 analyse_graphe.py [OPTION]")
+        print("Options disponibles:")
+        print("  -a, --analyse      PARTIE 2: Analyse des 9 configurations")
+        print("  -p3, --partie3     PARTIE 3: Graphes valués (coût = distance²)")
+        print("  -i2d, --interactif2d  Mode interactif 2D")
+        print("  -i3d, --interactif3d  Mode interactif 3D")
+        print("\nUtilisez --help pour plus de détails.")

@@ -17,7 +17,7 @@ Analyse d'un essaim de nanosatellites en orbite lunaire pour une application d'i
 ## Technologies
 - Python
 - NetworkX
-- Google Antigravity IDE
+- Matplotlib
 
 ## Auteur
 2025-2026
@@ -33,48 +33,49 @@ python3 analyse_graphe.py --help
 
 ### Options disponibles
 
-| Option | Valeurs | Description |
-|--------|---------|-------------|
-| `-d`, `--densite` | `low`, `avg`, `high` | Densité de l'essaim (défaut: `avg`) |
-| `-p`, `--portee` | `courte`, `moyenne`, `longue` | Portée de communication (défaut: `moyenne`) |
-| `-v`, `--visu` | `2d`, `3d`, `both`, `none` | Type de visualisation (défaut: `none`) |
-| `-i2d`, `--interactif2d` | - | Mode interactif 2D avec boutons |
-| `-i3d`, `--interactif3d` | - | Mode interactif 3D avec boutons + rotation |
-| `-a`, `--analyse` | - | PARTIE 2: Graphes non valués (9 configurations) |
-| `-p3`, `--partie3` | - | PARTIE 3: Graphes valués (coût = distance²) |
+| Option | Description |
+|--------|-------------|
+| `-a`, `--analyse` | PARTIE 2: Graphes non valués (9 configurations) |
+| `-p3`, `--partie3` | PARTIE 3: Graphes valués (coût = distance²) |
+| `-i2d`, `--interactif2d` | Mode interactif 2D avec boutons |
+| `-i3d`, `--interactif3d` | Mode interactif 3D avec boutons + rotation |
 
-### Portées de communication
-- `courte` = 30 km
-- `moyenne` = 60 km
-- `longue` = 100 km
+---
 
-### Exemples
+### PARTIE 2 : Graphes non valués (9 configurations)
 
-**Statistiques seulement (défaut) :**
+Analyse topologique pour les 9 combinaisons (3 densités × 3 portées) :
 ```bash
-python3 analyse_graphe.py
+python3 analyse_graphe.py -a
 ```
 
-**Changer la densité et la portée :**
+**Résultats :**
+- Fichier texte `resultats_partie2.txt` (s'ouvre automatiquement)
+- Histogrammes dans le dossier `histogrammes/` (s'ouvre automatiquement)
+
+**Statistiques calculées :**
+- Degrés : moyenne, min/max, distribution
+- Clustering : moyen, min/max
+- Cliques : nombre total, distribution par ordre, clique maximale
+- Composantes connexes : nombre, distribution par ordre
+- Plus courts chemins : longueur moyenne, diamètre, distribution
+
+---
+
+### PARTIE 3 : Graphes valués (coût = distance²)
+
+Analyse des graphes pondérés pour portée 60km avec coût = distance² :
 ```bash
-python3 analyse_graphe.py -d low -p courte    # Densité faible, 30 km
-python3 analyse_graphe.py -d high -p longue   # Densité forte, 100 km
+python3 analyse_graphe.py -p3
 ```
 
-**Afficher le graphe 2D :**
-```bash
-python3 analyse_graphe.py -v 2d
-```
+**Statistiques calculées :**
+- Poids des arêtes : total, moyen, min/max
+- Plus courts chemins pondérés (Dijkstra) : coût moyen, diamètre pondéré
+- Arbre couvrant minimum (Kruskal) : poids total, nombre d'arêtes
+- Centralité de proximité pondérée
 
-**Afficher le graphe 3D (rotation avec la souris) :**
-```bash
-python3 analyse_graphe.py -v 3d
-```
-
-**Combiner toutes les options :**
-```bash
-python3 analyse_graphe.py -d high -p longue -v both
-```
+---
 
 ### Modes interactifs
 
@@ -91,33 +92,6 @@ python3 analyse_graphe.py -i3d
 ```
 
 Le graphe se met à jour automatiquement quand tu cliques sur une option.
-
-### PARTIE 2 : Graphes non valués (9 configurations)
-
-Analyse topologique pour les 9 combinaisons (3 densités × 3 portées) :
-```bash
-python3 analyse_graphe.py -a
-```
-
-**Statistiques calculées :**
-- Degrés : moyenne, min/max, distribution
-- Clustering : moyen, min/max
-- Cliques : nombre total, distribution par ordre, clique maximale
-- Composantes connexes : nombre, distribution par ordre
-- Plus courts chemins : longueur moyenne, diamètre, distribution
-
-### PARTIE 3 : Graphes valués (coût = distance²)
-
-Analyse des graphes pondérés pour portée 60km avec coût = distance² :
-```bash
-python3 analyse_graphe.py -p3
-```
-
-**Statistiques calculées :**
-- Poids des arêtes : total, moyen, min/max
-- Plus courts chemins pondérés (Dijkstra) : coût moyen, diamètre pondéré
-- Arbre couvrant minimum (Kruskal) : poids total, nombre d'arêtes
-- Centralité de proximité pondérée
 
 ### Navigation dans les graphes
 - **2D** : Utilisez la toolbar en bas (zoom, pan)
