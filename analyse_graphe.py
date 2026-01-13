@@ -134,6 +134,77 @@ def afficher_statistiques(G, nom):
         print(f"  • Clustering moyen             : {nx.average_clustering(G):.4f}")
 
 
+def analyser_neuf_configurations():
+    """Analyse complète des 9 configurations (3 densités × 3 portées)."""
+    from collections import Counter
+    
+    print("\n" + "="*80)
+    print("   ANALYSE COMPLÈTE DES 9 CONFIGURATIONS")
+    print("="*80)
+    
+    for densite in ['low', 'avg', 'high']:
+        satellites = pd.read_csv(DATA_FILES[densite])
+        
+        for portee_nom, portee in PORTEES.items():
+            print(f"\n{'─'*80}")
+            print(f"  DENSITÉ: {densite} | PORTÉE: {portee_nom} ({portee/1000:.0f} km)")
+            print(f"{'─'*80}")
+            
+            G = construire_graphe(satellites, portee)
+            
+            # --- DEGRÉS ---
+            degres = [d for n, d in G.degree()]
+            print(f"\n   DEGRÉS:")
+            print(f"     • Degré moyen: {np.mean(degres):.2f}")
+            print(f"     • Degré min/max: {min(degres)} / {max(degres)}")
+            deg_dist = Counter(degres)
+            print(f"     • Distribution: {dict(sorted(deg_dist.items()))}")
+            
+            # --- CLUSTERING ---
+            clustering = list(nx.clustering(G).values())
+            print(f"\n  🔗 CLUSTERING:")
+            print(f"     • Clustering moyen: {np.mean(clustering):.4f}")
+            print(f"     • Clustering min/max: {min(clustering):.4f} / {max(clustering):.4f}")
+            
+            # --- CLIQUES ---
+            cliques = list(nx.find_cliques(G))
+            ordres_cliques = Counter([len(c) for c in cliques])
+            print(f"\n   CLIQUES:")
+            print(f"     • Nombre total: {len(cliques)}")
+            print(f"     • Par ordre: {dict(sorted(ordres_cliques.items()))}")
+            print(f"     • Clique max: {max(ordres_cliques.keys())} sommets")
+            
+            # --- COMPOSANTES CONNEXES ---
+            composantes = list(nx.connected_components(G))
+            ordres_comp = Counter([len(c) for c in composantes])
+            print(f"\n   COMPOSANTES CONNEXES:")
+            print(f"     • Nombre: {len(composantes)}")
+            print(f"     • Par ordre: {dict(sorted(ordres_comp.items()))}")
+            
+            # --- PLUS COURTS CHEMINS ---
+            print(f"\n   PLUS COURTS CHEMINS:")
+            if nx.is_connected(G):
+                all_paths = dict(nx.all_pairs_shortest_path_length(G))
+                longueurs = [l for s in all_paths for t, l in all_paths[s].items() if s < t]
+                dist_chemins = Counter(longueurs)
+                print(f"     • Paires connectées: {len(longueurs)}")
+                print(f"     • Longueur moyenne: {np.mean(longueurs):.2f}")
+                print(f"     • Diamètre: {max(longueurs)}")
+                print(f"     • Distribution: {dict(sorted(dist_chemins.items()))}")
+            else:
+                print(f"     • Graphe non connexe")
+                for i, comp in enumerate(sorted(composantes, key=len, reverse=True)):
+                    if len(comp) > 1:
+                        subG = G.subgraph(comp)
+                        paths = dict(nx.all_pairs_shortest_path_length(subG))
+                        lens = [l for s in paths for t, l in paths[s].items() if s < t]
+                        print(f"     • Comp. {i+1} ({len(comp)} nœuds): moy={np.mean(lens):.2f}, max={max(lens)}")
+    
+    print("\n" + "="*80)
+    print("   ANALYSE TERMINÉE")
+    print("="*80)
+
+
 def visualiser_graphe_2d(G, titre):
     """Visualise le graphe en 2D (zoom/pan avec la toolbar en bas)."""
     fig, ax = plt.subplots(figsize=(12, 10))
@@ -367,10 +438,18 @@ if __name__ == "__main__":
         help="Mode interactif 3D: modifier densité/portée avec des boutons + rotation"
     )
     
+    parser.add_argument(
+        '-a', '--analyse',
+        action='store_true',
+        help="Analyse complète des 9 configurations (3 densités × 3 portées)"
+    )
+    
     args = parser.parse_args()
     
-    # Modes interactifs
-    if args.interactif2d:
+    # Modes spéciaux
+    if args.analyse:
+        analyser_neuf_configurations()
+    elif args.interactif2d:
         print("→ Lancement du mode interactif 2D...")
         visualiser_interactif_2d()
     elif args.interactif3d:

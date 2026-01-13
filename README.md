@@ -40,6 +40,7 @@ python3 analyse_graphe.py --help
 | `-v`, `--visu` | `2d`, `3d`, `both`, `none` | Type de visualisation (défaut: `none`) |
 | `-i2d`, `--interactif2d` | - | Mode interactif 2D avec boutons |
 | `-i3d`, `--interactif3d` | - | Mode interactif 3D avec boutons + rotation |
+| `-a`, `--analyse` | - | Analyse complète des 9 configurations |
 
 ### Portées de communication
 - `courte` = 30 km
