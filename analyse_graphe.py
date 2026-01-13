@@ -26,9 +26,9 @@ DATA_FILES = {
 
 # Portées de communication (en mètres)
 PORTEES = {
-    'courte': 30_000,    # 30 km
-    'moyenne': 60_000,   # 60 km
-    'longue': 100_000    # 100 km
+    'courte': 20_000,    # 20 km
+    'moyenne': 40_000,   # 40 km
+    'longue': 60_000     # 60 km
 }
 
 # =============================================================================
@@ -285,91 +285,227 @@ def analyser_graphes_ponderes():
     """
     PARTIE 3 : Analyse des graphes valués pour portée 60km.
     Coût de chaque arête = distance² entre les deux satellites.
+    Reprend toutes les analyses de la Partie 2 en version pondérée.
     """
     from collections import Counter
-    
-    print("\n" + "="*80)
-    print("   PARTIE 3 : ANALYSE DES GRAPHES VALUÉS (portée 60km, coût = distance²)")
-    print("="*80)
-    
-    portee = PORTEES['moyenne']  # 60 km
-    
-    for densite in ['low', 'avg', 'high']:
-        satellites = pd.read_csv(DATA_FILES[densite])
-        
-        print(f"\n{'─'*80}")
-        print(f"  DENSITÉ: {densite} | PORTÉE: 60 km | COÛT = distance²")
-        print(f"{'─'*80}")
-        
-        # Construire le graphe pondéré
-        G = construire_graphe_pondere(satellites, portee)
-        
-        # --- STATISTIQUES DE BASE ---
-        print(f"\n   STATISTIQUES DE BASE:")
-        print(f"     • Nœuds: {G.number_of_nodes()}")
-        print(f"     • Arêtes: {G.number_of_edges()}")
-        
-        # --- POIDS DES ARÊTES ---
-        poids = [d['weight'] for u, v, d in G.edges(data=True)]
-        print(f"\n   POIDS DES ARÊTES (distance²):")
-        print(f"     • Poids total: {sum(poids):.2e}")
-        print(f"     • Poids moyen: {np.mean(poids):.2e}")
-        print(f"     • Poids min/max: {min(poids):.2e} / {max(poids):.2e}")
-        
-        # --- PLUS COURTS CHEMINS PONDÉRÉS (Dijkstra) ---
-        print(f"\n   PLUS COURTS CHEMINS PONDÉRÉS (Dijkstra):")
-        if nx.is_connected(G):
-            # Calculer les plus courts chemins pondérés
-            all_paths = dict(nx.all_pairs_dijkstra_path_length(G))
-            couts = [c for s in all_paths for t, c in all_paths[s].items() if s < t]
-            
-            print(f"     • Paires connectées: {len(couts)}")
-            print(f"     • Coût moyen: {np.mean(couts):.2e}")
-            print(f"     • Coût min/max: {min(couts):.2e} / {max(couts):.2e}")
-            
-            # Diamètre pondéré (plus long des plus courts chemins)
-            diametre_pondere = max(couts)
-            print(f"     • Diamètre pondéré: {diametre_pondere:.2e}")
-        else:
+    import subprocess
+    import os
+
+    fichier_sortie = "resultats_partie3.txt"
+
+    # Créer le dossier pour les histogrammes
+    os.makedirs("histogrammes_partie3", exist_ok=True)
+
+    with open(fichier_sortie, 'w', encoding='utf-8') as f:
+        f.write("=" * 80 + "\n")
+        f.write("   PARTIE 3 : ANALYSE DES GRAPHES VALUÉS (portée 60km, coût = distance²)\n")
+        f.write("=" * 80 + "\n")
+
+        portee = PORTEES['longue']  # 60 km
+
+        for densite in ['low', 'avg', 'high']:
+            satellites = pd.read_csv(DATA_FILES[densite])
+
+            f.write(f"\n{'─'*80}\n")
+            f.write(f"  DENSITÉ: {densite} | PORTÉE: 60 km | COÛT = distance²\n")
+            f.write(f"{'─'*80}\n")
+
+            # Construire le graphe pondéré
+            G = construire_graphe_pondere(satellites, portee)
+
+            # --- STATISTIQUES DE BASE ---
+            f.write(f"\n   STATISTIQUES DE BASE:\n")
+            f.write(f"     • Nœuds: {G.number_of_nodes()}\n")
+            f.write(f"     • Arêtes: {G.number_of_edges()}\n")
+            f.write(f"     • Densité: {nx.density(G):.4f}\n")
+
+            # --- POIDS DES ARÊTES ---
+            poids = [d['weight'] for u, v, d in G.edges(data=True)]
+            f.write(f"\n   POIDS DES ARÊTES (distance²):\n")
+            f.write(f"     • Poids total: {sum(poids):.2e}\n")
+            f.write(f"     • Poids moyen: {np.mean(poids):.2e}\n")
+            f.write(f"     • Poids min/max: {min(poids):.2e} / {max(poids):.2e}\n")
+            f.write(f"     • Écart-type: {np.std(poids):.2e}\n")
+
+            # --- DEGRÉS (identique à la Partie 2) ---
+            degres = [d for n, d in G.degree()]
+            f.write(f"\n   DEGRÉS:\n")
+            f.write(f"     • Degré moyen: {np.mean(degres):.2f}\n")
+            f.write(f"     • Degré min/max: {min(degres)} / {max(degres)}\n")
+            deg_dist = Counter(degres)
+            f.write(f"     • Distribution: {dict(sorted(deg_dist.items()))}\n")
+
+            # --- CLUSTERING (identique à la Partie 2) ---
+            clustering = list(nx.clustering(G).values())
+            f.write(f"\n   CLUSTERING:\n")
+            f.write(f"     • Clustering moyen: {np.mean(clustering):.4f}\n")
+            f.write(f"     • Clustering min/max: {min(clustering):.4f} / {max(clustering):.4f}\n")
+
+            # --- CLIQUES (identique à la Partie 2) ---
+            cliques = list(nx.find_cliques(G))
+            ordres_cliques = Counter([len(c) for c in cliques])
+            f.write(f"\n   CLIQUES:\n")
+            f.write(f"     • Nombre total: {len(cliques)}\n")
+            f.write(f"     • Par ordre: {dict(sorted(ordres_cliques.items()))}\n")
+            f.write(f"     • Clique max: {max(ordres_cliques.keys())} sommets\n")
+
+            # --- COMPOSANTES CONNEXES (identique à la Partie 2) ---
             composantes = list(nx.connected_components(G))
-            print(f"     • Graphe non connexe ({len(composantes)} composantes)")
-            for i, comp in enumerate(sorted(composantes, key=len, reverse=True)[:3]):
-                if len(comp) > 1:
-                    subG = G.subgraph(comp)
-                    paths = dict(nx.all_pairs_dijkstra_path_length(subG))
-                    couts = [c for s in paths for t, c in paths[s].items() if s < t]
-                    print(f"     • Comp. {i+1} ({len(comp)} nœuds): coût moy={np.mean(couts):.2e}, max={max(couts):.2e}")
-        
-        # --- ARBRE COUVRANT MINIMUM ---
-        print(f"\n   ARBRE COUVRANT MINIMUM (Kruskal):")
-        if nx.is_connected(G):
-            mst = nx.minimum_spanning_tree(G)
-            poids_mst = sum(d['weight'] for u, v, d in mst.edges(data=True))
-            print(f"     • Poids total MST: {poids_mst:.2e}")
-            print(f"     • Nb arêtes MST: {mst.number_of_edges()}")
-            
-            # Arête de poids min et max dans le MST
-            poids_aretes_mst = [d['weight'] for u, v, d in mst.edges(data=True)]
-            print(f"     • Arête min/max: {min(poids_aretes_mst):.2e} / {max(poids_aretes_mst):.2e}")
-        else:
-            # Forêt couvrante minimum
-            forest = nx.minimum_spanning_tree(G)
-            poids_forest = sum(d['weight'] for u, v, d in forest.edges(data=True))
-            print(f"     • Poids forêt couvrante: {poids_forest:.2e}")
-            print(f"     • Nb arêtes: {forest.number_of_edges()}")
-        
-        # --- CENTRALITÉ PONDÉRÉE ---
-        print(f"\n   CENTRALITÉ DE PROXIMITÉ PONDÉRÉE:")
-        if nx.is_connected(G):
-            closeness = nx.closeness_centrality(G, distance='weight')
-            top_nodes = sorted(closeness.items(), key=lambda x: x[1], reverse=True)[:5]
-            print(f"     • Top 5 nœuds centraux: {[(n, f'{c:.4f}') for n, c in top_nodes]}")
-        else:
-            print(f"     • Non calculable (graphe non connexe)")
-    
-    print("\n" + "="*80)
-    print("   PARTIE 3 TERMINÉE")
-    print("="*80)
+            ordres_comp = Counter([len(c) for c in composantes])
+            f.write(f"\n   COMPOSANTES CONNEXES:\n")
+            f.write(f"     • Nombre: {len(composantes)}\n")
+            f.write(f"     • Par ordre: {dict(sorted(ordres_comp.items()))}\n")
+
+            # --- PLUS COURTS CHEMINS NON PONDÉRÉS (en nombre de sauts) ---
+            f.write(f"\n   PLUS COURTS CHEMINS (en nombre de sauts):\n")
+            longueurs_sauts = []
+            if nx.is_connected(G):
+                all_paths = dict(nx.all_pairs_shortest_path_length(G))
+                longueurs_sauts = [l for s in all_paths for t, l in all_paths[s].items() if s < t]
+                dist_chemins = Counter(longueurs_sauts)
+                f.write(f"     • Paires connectées: {len(longueurs_sauts)}\n")
+                f.write(f"     • Longueur moyenne: {np.mean(longueurs_sauts):.2f}\n")
+                f.write(f"     • Diamètre (sauts): {max(longueurs_sauts)}\n")
+                f.write(f"     • Distribution: {dict(sorted(dist_chemins.items()))}\n")
+            else:
+                f.write(f"     • Graphe non connexe\n")
+                for i, comp in enumerate(sorted(composantes, key=len, reverse=True)):
+                    if len(comp) > 1:
+                        subG = G.subgraph(comp)
+                        paths = dict(nx.all_pairs_shortest_path_length(subG))
+                        lens = [l for s in paths for t, l in paths[s].items() if s < t]
+                        longueurs_sauts.extend(lens)
+                        f.write(f"     • Comp. {i+1} ({len(comp)} nœuds): moy={np.mean(lens):.2f}, max={max(lens)}\n")
+
+            # --- PLUS COURTS CHEMINS PONDÉRÉS (Dijkstra) ---
+            f.write(f"\n   PLUS COURTS CHEMINS PONDÉRÉS (Dijkstra, coût = distance²):\n")
+            couts = []
+            if nx.is_connected(G):
+                all_paths = dict(nx.all_pairs_dijkstra_path_length(G))
+                couts = [c for s in all_paths for t, c in all_paths[s].items() if s < t]
+
+                f.write(f"     • Paires connectées: {len(couts)}\n")
+                f.write(f"     • Coût moyen: {np.mean(couts):.2e}\n")
+                f.write(f"     • Coût min/max: {min(couts):.2e} / {max(couts):.2e}\n")
+                f.write(f"     • Diamètre pondéré: {max(couts):.2e}\n")
+                f.write(f"     • Écart-type: {np.std(couts):.2e}\n")
+            else:
+                f.write(f"     • Graphe non connexe ({len(composantes)} composantes)\n")
+                for i, comp in enumerate(sorted(composantes, key=len, reverse=True)[:3]):
+                    if len(comp) > 1:
+                        subG = G.subgraph(comp)
+                        paths = dict(nx.all_pairs_dijkstra_path_length(subG))
+                        c = [cost for s in paths for t, cost in paths[s].items() if s < t]
+                        couts.extend(c)
+                        f.write(f"     • Comp. {i+1} ({len(comp)} nœuds): coût moy={np.mean(c):.2e}, max={max(c):.2e}\n")
+
+            # --- ARBRE COUVRANT MINIMUM ---
+            f.write(f"\n   ARBRE COUVRANT MINIMUM (Kruskal):\n")
+            if nx.is_connected(G):
+                mst = nx.minimum_spanning_tree(G)
+                poids_mst = sum(d['weight'] for u, v, d in mst.edges(data=True))
+                f.write(f"     • Poids total MST: {poids_mst:.2e}\n")
+                f.write(f"     • Nb arêtes MST: {mst.number_of_edges()}\n")
+
+                poids_aretes_mst = [d['weight'] for u, v, d in mst.edges(data=True)]
+                f.write(f"     • Arête min/max: {min(poids_aretes_mst):.2e} / {max(poids_aretes_mst):.2e}\n")
+                f.write(f"     • Arête moyenne: {np.mean(poids_aretes_mst):.2e}\n")
+            else:
+                forest = nx.minimum_spanning_tree(G)
+                poids_forest = sum(d['weight'] for u, v, d in forest.edges(data=True))
+                f.write(f"     • Poids forêt couvrante: {poids_forest:.2e}\n")
+                f.write(f"     • Nb arêtes: {forest.number_of_edges()}\n")
+
+            # --- CENTRALITÉ PONDÉRÉE ---
+            f.write(f"\n   CENTRALITÉ DE PROXIMITÉ PONDÉRÉE:\n")
+            if nx.is_connected(G):
+                closeness = nx.closeness_centrality(G, distance='weight')
+                top_nodes = sorted(closeness.items(), key=lambda x: x[1], reverse=True)[:5]
+                f.write(f"     • Top 5 nœuds centraux: {[(n, f'{c:.4f}') for n, c in top_nodes]}\n")
+            else:
+                f.write(f"     • Non calculable (graphe non connexe)\n")
+
+            # --- GÉNÉRATION DES HISTOGRAMMES ---
+            fig, axes = plt.subplots(2, 3, figsize=(16, 10))
+            fig.suptitle(f"Partie 3 - Distributions - {densite} / portée 60 km (coût = distance²)",
+                        fontsize=14, fontweight='bold')
+
+            # Histogramme des degrés
+            axes[0, 0].hist(degres, bins=20, color='steelblue', edgecolor='black', alpha=0.7)
+            axes[0, 0].axvline(np.mean(degres), color='red', linestyle='--', label=f'Moyenne: {np.mean(degres):.1f}')
+            axes[0, 0].set_xlabel('Degré')
+            axes[0, 0].set_ylabel('Fréquence')
+            axes[0, 0].set_title('Distribution des degrés')
+            axes[0, 0].legend()
+
+            # Histogramme du clustering
+            axes[0, 1].hist(clustering, bins=20, color='forestgreen', edgecolor='black', alpha=0.7)
+            axes[0, 1].axvline(np.mean(clustering), color='red', linestyle='--', label=f'Moyenne: {np.mean(clustering):.3f}')
+            axes[0, 1].set_xlabel('Coefficient de clustering')
+            axes[0, 1].set_ylabel('Fréquence')
+            axes[0, 1].set_title('Distribution du clustering')
+            axes[0, 1].legend()
+
+            # Histogramme des cliques
+            ordres = list(ordres_cliques.keys())
+            counts = list(ordres_cliques.values())
+            axes[0, 2].bar(ordres, counts, color='darkorange', edgecolor='black', alpha=0.7)
+            axes[0, 2].set_xlabel('Ordre de la clique')
+            axes[0, 2].set_ylabel('Nombre de cliques')
+            axes[0, 2].set_title('Distribution des cliques par ordre')
+
+            # Histogramme des plus courts chemins (sauts)
+            if longueurs_sauts:
+                axes[1, 0].hist(longueurs_sauts, bins=range(1, max(longueurs_sauts)+2),
+                               color='purple', edgecolor='black', alpha=0.7, align='left')
+                axes[1, 0].axvline(np.mean(longueurs_sauts), color='red', linestyle='--',
+                                  label=f'Moyenne: {np.mean(longueurs_sauts):.2f}')
+                axes[1, 0].set_xlabel('Longueur (en sauts)')
+                axes[1, 0].set_ylabel('Nombre de paires')
+                axes[1, 0].set_title('Distribution des plus courts chemins (sauts)')
+                axes[1, 0].legend()
+            else:
+                axes[1, 0].text(0.5, 0.5, 'Pas de données', ha='center', va='center')
+                axes[1, 0].set_title('Distribution des plus courts chemins (sauts)')
+
+            # Histogramme des poids des arêtes
+            axes[1, 1].hist(poids, bins=30, color='crimson', edgecolor='black', alpha=0.7)
+            axes[1, 1].axvline(np.mean(poids), color='blue', linestyle='--',
+                              label=f'Moyenne: {np.mean(poids):.2e}')
+            axes[1, 1].set_xlabel('Poids (distance²)')
+            axes[1, 1].set_ylabel('Fréquence')
+            axes[1, 1].set_title('Distribution des poids des arêtes')
+            axes[1, 1].legend()
+            axes[1, 1].ticklabel_format(style='scientific', axis='x', scilimits=(0,0))
+
+            # Histogramme des coûts des plus courts chemins pondérés
+            if couts:
+                axes[1, 2].hist(couts, bins=30, color='teal', edgecolor='black', alpha=0.7)
+                axes[1, 2].axvline(np.mean(couts), color='red', linestyle='--',
+                                  label=f'Moyenne: {np.mean(couts):.2e}')
+                axes[1, 2].set_xlabel('Coût pondéré (distance²)')
+                axes[1, 2].set_ylabel('Nombre de paires')
+                axes[1, 2].set_title('Distribution des coûts (Dijkstra)')
+                axes[1, 2].legend()
+                axes[1, 2].ticklabel_format(style='scientific', axis='x', scilimits=(0,0))
+            else:
+                axes[1, 2].text(0.5, 0.5, 'Pas de données', ha='center', va='center')
+                axes[1, 2].set_title('Distribution des coûts (Dijkstra)')
+
+            plt.tight_layout()
+            plt.savefig(f"histogrammes_partie3/hist_pondere_{densite}.png", dpi=150)
+            plt.close()
+
+        f.write("\n" + "=" * 80 + "\n")
+        f.write("   PARTIE 3 TERMINÉE\n")
+        f.write("=" * 80 + "\n")
+
+    print(f"Résultats écrits dans: {fichier_sortie}")
+    print(f"Histogrammes sauvegardés dans: histogrammes_partie3/")
+
+    # Ouvrir le fichier et le dossier des histogrammes
+    subprocess.run(['open', fichier_sortie])
+    subprocess.run(['open', 'histogrammes_partie3'])
 
 
 def visualiser_graphe_2d(G, titre):
