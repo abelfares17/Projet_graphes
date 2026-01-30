@@ -36,14 +36,17 @@
      • Par ordre: {1: 2, 2: 1, 96: 1}
 
    PLUS COURTS CHEMINS (en nombre de sauts):
-     • Graphe non connexe
-     • Comp. 1 (96 nœuds): moy=1.92, max=5
-     • Comp. 2 (2 nœuds): moy=1.00, max=1
+     • Paires connectées: 4561
+     • Longueur moyenne: 1.92
+     • Diamètre (sauts): 5
+     • Distribution: {1: 1471, 2: 2113, 3: 848, 4: 121, 5: 8}
 
    PLUS COURTS CHEMINS PONDÉRÉS (Dijkstra, coût = distance²):
-     • Graphe non connexe (4 composantes)
-     • Comp. 1 (96 nœuds): coût moy=2.46e+09, max=9.20e+09
-     • Comp. 2 (2 nœuds): coût moy=1.73e+09, max=1.73e+09
+     • Paires connectées: 4561
+     • Coût moyen: 2.46e+09
+     • Coût min/max: 5.03e+06 / 9.20e+09
+     • Diamètre pondéré: 9.20e+09
+     • Écart-type: 1.41e+09
 
    ARBRE COUVRANT MINIMUM (Kruskal):
      • Poids forêt couvrante: 4.52e+10
@@ -86,12 +89,17 @@
      • Par ordre: {1: 1, 99: 1}
 
    PLUS COURTS CHEMINS (en nombre de sauts):
-     • Graphe non connexe
-     • Comp. 1 (99 nœuds): moy=1.92, max=6
+     • Paires connectées: 4851
+     • Longueur moyenne: 1.92
+     • Diamètre (sauts): 6
+     • Distribution: {1: 1782, 2: 1947, 3: 863, 4: 226, 5: 31, 6: 2}
 
    PLUS COURTS CHEMINS PONDÉRÉS (Dijkstra, coût = distance²):
-     • Graphe non connexe (2 composantes)
-     • Comp. 1 (99 nœuds): coût moy=1.95e+09, max=7.61e+09
+     • Paires connectées: 4851
+     • Coût moyen: 1.95e+09
+     • Coût min/max: 1.10e+07 / 7.61e+09
+     • Diamètre pondéré: 7.61e+09
+     • Écart-type: 1.20e+09
 
    ARBRE COUVRANT MINIMUM (Kruskal):
      • Poids forêt couvrante: 3.09e+10
@@ -134,14 +142,17 @@
      • Par ordre: {2: 1, 98: 1}
 
    PLUS COURTS CHEMINS (en nombre de sauts):
-     • Graphe non connexe
-     • Comp. 1 (98 nœuds): moy=1.98, max=8
-     • Comp. 2 (2 nœuds): moy=1.00, max=1
+     • Paires connectées: 4754
+     • Longueur moyenne: 1.98
+     • Diamètre (sauts): 8
+     • Distribution: {1: 1870, 2: 1735, 3: 744, 4: 254, 5: 97, 6: 38, 7: 12, 8: 4}
 
    PLUS COURTS CHEMINS PONDÉRÉS (Dijkstra, coût = distance²):
-     • Graphe non connexe (2 composantes)
-     • Comp. 1 (98 nœuds): coût moy=2.18e+09, max=1.39e+10
-     • Comp. 2 (2 nœuds): coût moy=3.29e+08, max=3.29e+08
+     • Paires connectées: 4754
+     • Coût moyen: 2.18e+09
+     • Coût min/max: 6.02e+06 / 1.39e+10
+     • Diamètre pondéré: 1.39e+10
+     • Écart-type: 1.87e+09
 
    ARBRE COUVRANT MINIMUM (Kruskal):
      • Poids forêt couvrante: 3.18e+10
